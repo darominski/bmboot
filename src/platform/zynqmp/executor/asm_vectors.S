@@ -52,14 +52,21 @@
 .globl FPUStatus
 
 /*
- * FPUContextSize is the size of the array where floating point registers are
+ * FPUContextSize is the size of the array (528) where floating point registers are
  * stored when required. The default size corresponds to the case when there is no
  * nested interrupt. If there are nested interrupts in application which are using
  * floating point operation, the size of FPUContextSize need to be increased as per
  * requirement
  */
 
-.set FPUContextSize, 528
+// The Zynq Ultrascale+ has 16 PL-PS interrupt IDs available, technically allowing
+// for that much of interleaving, however it is currently not supported in BMboot:
+// the payloads can define 8 priority levels and that is the maximum number of interleaving
+// that can be expected in the user code. To fully accomodate that possibility
+// and to avoid any issues, the context size below is extended by the same factor as the number
+// of priority levels, from 528 to 4224. The solution was tested on an Ultrascale+.
+
+.set FPUContextSize, 4224
 
 .macro saveregister
 	stp	X0,X1, [sp,#-0x10]!
